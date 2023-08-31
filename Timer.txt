@@ -1,0 +1,28 @@
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Timer timer = new Timer();
+
+        // Creating a task to be executed
+        TimerTask task = new TimerTask() {
+            int counter = 0;
+
+            @Override
+            public void run() {
+                counter++;
+                System.out.println("Timer task executed #" + counter);
+
+                if (counter >= 10) {
+                    System.out.println("Timer task has finished executing.");
+                    timer.cancel(); // Stop the timer after 5 executions
+                }
+            }
+        };
+
+        // Scheduling the task to run every 1 second
+        timer.schedule(task, 0, 1000);
+    }
+}

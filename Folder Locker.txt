@@ -1,0 +1,53 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input folder path to lock
+        System.out.print("Enter the folder path to lock: ");
+        String folderPath = scanner.nextLine();
+
+        // Input password
+        System.out.print("Enter a password: ");
+        String password = scanner.nextLine();
+
+        // Lock the folder
+        lockFolder(folderPath, password);
+
+        System.out.println("Folder locked successfully!");
+    }
+
+    public static void lockFolder(String folderPath, String password) {
+        try {
+            // Create a temporary folder to move the original folder contents
+            File tempFolder = new File(folderPath + "_temp");
+            tempFolder.mkdir();
+
+            // Move the contents of the original folder to the temporary folder
+            File originalFolder = new File(folderPath);
+            File[] files = originalFolder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    Files.move(file.toPath(), new File(tempFolder.getAbsolutePath() + File.separator + file.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+
+            // Encrypt the original folder name with the password
+            String encryptedFolderName = password.hashCode() + ".locked";
+
+            // Rename the original folder to the encrypted name
+            originalFolder.renameTo(new File(encryptedFolderName));
+
+            // Move the temporary folder back to the original location
+            tempFolder.renameTo(new File(folderPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
