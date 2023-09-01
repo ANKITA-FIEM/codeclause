@@ -1,0 +1,116 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Main {
+    private JFrame frame;
+    private JLabel timerLabel;
+    private JLabel stopwatchLabel;
+    private Timer timer;
+    private Stopwatch stopwatch;
+    private JButton startTimerButton;
+    private JButton stopTimerButton;
+    private JButton resetTimerButton;
+    private JButton startStopwatchButton;
+    private JButton stopStopwatchButton;
+    private JButton resetStopwatchButton;
+
+    public Main() {
+        frame = new JFrame("Timer and Stopwatch");
+        frame.setLayout(new GridLayout(3, 2));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        timerLabel = new JLabel("00:00:00");
+        stopwatchLabel = new JLabel("00:00:00");
+        timer = new Timer(1000, new ActionListener() {
+            private int seconds = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                seconds++;
+                updateTimerLabel(seconds);
+            }
+        });
+        stopwatch = new Stopwatch();
+
+        startTimerButton = new JButton("Start Timer");
+        stopTimerButton = new JButton("Stop Timer");
+        resetTimerButton = new JButton("Reset Timer");
+        startStopwatchButton = new JButton("Start Stopwatch");
+        stopStopwatchButton = new JButton("Stop Stopwatch");
+        resetStopwatchButton = new JButton("Reset Stopwatch");
+
+        startTimerButton.addActionListener(e -> timer.start());
+        stopTimerButton.addActionListener(e -> timer.stop());
+        resetTimerButton.addActionListener(e -> {
+            timer.stop();
+            updateTimerLabel(0);
+        });
+
+        startStopwatchButton.addActionListener(e -> stopwatch.start());
+        stopStopwatchButton.addActionListener(e -> stopwatch.stop());
+        resetStopwatchButton.addActionListener(e -> {
+            stopwatch.stop();
+            stopwatch.reset();
+            updateStopwatchLabel(0);
+        });
+
+        frame.add(timerLabel);
+        frame.add(stopwatchLabel);
+        frame.add(startTimerButton);
+        frame.add(startStopwatchButton);
+        frame.add(stopTimerButton);
+        frame.add(stopStopwatchButton);
+        frame.add(resetTimerButton);
+        frame.add(resetStopwatchButton);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    private void updateTimerLabel(int seconds) {
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+        timerLabel.setText(String.format("%02d:%02d:%02d", hours, minutes, secs));
+    }
+
+    private void updateStopwatchLabel(int milliseconds) {
+        int seconds = milliseconds / 1000;
+        int minutes = seconds / 60;
+        int secs = seconds % 60;
+        stopwatchLabel.setText(String.format("%02d:%02d:%02d", minutes, secs, milliseconds % 1000));
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Main());
+    }
+
+    private class Stopwatch {
+        private long startTime;
+        private long elapsedTime;
+        private Timer stopwatchTimer;
+
+        Stopwatch() {
+            stopwatchTimer = new Timer(10, e -> {
+                elapsedTime = System.currentTimeMillis() - startTime;
+                updateStopwatchLabel((int) elapsedTime);
+            });
+        }
+
+        void start() {
+            startTime = System.currentTimeMillis() - elapsedTime;
+            stopwatchTimer.start();
+        }
+
+        void stop() {
+            stopwatchTimer.stop();
+            elapsedTime = System.currentTimeMillis() - startTime;
+        }
+
+        void reset() {
+            elapsedTime = 0;
+        }
+    }
+}
